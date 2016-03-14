@@ -34,4 +34,22 @@ function Promise (callback){
   callback(provider, rejecter);
 }
 
+Promise.all = function(promises){
+  var unresolvedPromises = promises.length;
+  var allData = [];
+  var whenAllFinished = new Promise(function(resolve, reject){
+    promises.forEach(function(promise, index){
+      promise.then(function(data){
+        allData[index] = data;
+        unresolvedPromises--;
+        if (!unresolvedPromises){
+          resolve(allData);
+        }
+      });
+    });
+  });
+
+  return whenAllFinished;
+};
+
 module.exports = Promise;

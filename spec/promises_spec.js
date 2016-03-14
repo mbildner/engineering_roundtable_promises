@@ -206,3 +206,33 @@ describe('flattening async stuff', function(){
     });
   });
 });
+
+describe('.all', function(){
+  function promiseMe(value){
+    var promise = new Promise(function(resolve){
+      defer(function(){
+        resolve(value);
+      });
+    });
+
+    return promise;
+  }
+
+  context('when called with an array of non-failing promises', function(){
+    it('returns a promise that will resolve with an array of values', function(done){
+      Promise.all([
+        promiseMe('friday'),
+        promiseMe('friday'),
+        promiseMe('gotta'),
+        promiseMe('get'),
+        promiseMe('down'),
+      ])
+      .then(function(rebecca){
+        expect(rebecca).toEqual([
+          'friday', 'friday', 'gotta', 'get', 'down'
+        ]);
+        done();
+      })
+    });
+  });
+});
