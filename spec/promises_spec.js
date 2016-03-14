@@ -92,3 +92,54 @@ describe('chaining callbacks', function(){
     });
   });
 });
+
+describe('rejecting promises', function(){
+  var promise;
+
+  beforeEach(function(){
+    promise = new Promise(function(resolve, reject){
+      defer(function(){
+        reject('just not that into you');
+      });
+    });
+  });
+
+  context('when you manually reject a promise', function(){
+    it('calls our `catch` method, with our provided reason', function(done){
+      promise
+      .catch(function(reason){
+        expect(reason).toBe('just not that into you');
+        done();
+      });
+    });
+  });
+});
+
+describe('protecting a promise', function(){
+  var promise;
+
+  beforeEach(function(){
+    promise = new Promise(function(resolve, reject){
+      defer(function(){
+        resolve('take on me');
+      });
+    });
+  });
+
+  context('when a callback barfs an error', function(){
+    it('catches you when you fall', function(done){
+      promise
+      .then(function(data){
+        // this function intentionally broken
+        whyAreYouDoingThis();
+      })
+      .catch(function(error){
+        expect(error.toString())
+          .toMatch(
+            /whyAreYouDoingThis is not defined/
+          );
+        done();
+      });
+    });
+  });
+});
