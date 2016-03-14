@@ -2,7 +2,7 @@
 
 function Promise (callback){
   var callbackStack = [];
-  var errback = function(){};
+  var errback = function(reason){ throw new Error(reason)};
 
   this.then = function(cb){
     callbackStack.push(cb);

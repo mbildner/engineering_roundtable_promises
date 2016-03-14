@@ -265,3 +265,28 @@ describe('.all', function(){
     });
   });
 });
+
+describe('never smother errors!', function(){
+  context('when a promise will fail with no catch provided', function(){
+    var resolverFunc;
+    var promise;
+
+    beforeEach(function(){
+      promise = new Promise(function(resolve){
+        resolverFunc = resolve;
+      });
+    });
+
+    it('throws a big fat error', function(done){
+      promise.then(function(data){
+        throw new Error("but who's got you?!");
+      });
+
+      expect(function(){
+        resolverFunc('anything will break this');
+      }).toThrow();
+
+      defer(done);
+    });
+  });
+});
