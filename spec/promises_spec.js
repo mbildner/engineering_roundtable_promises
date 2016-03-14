@@ -141,5 +141,24 @@ describe('protecting a promise', function(){
         done();
       });
     });
+
+    it('does not call your other crappy callbacks', function(done){
+      promise
+      .then(function(){
+        throw new Error('Stahp!');
+      })
+      .then(function(){
+        // this function would kill our tests
+        fail();
+      })
+      .catch(function(error){
+        expect(error.toString())
+          .toMatch(
+            /Error: Stahp/
+          );
+      });
+
+      defer(done);
+    });
   });
 });

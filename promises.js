@@ -20,6 +20,7 @@ function Promise (callback){
         intermediate = cb(intermediate);
       } catch (error) {
         errback(error);
+        break;
       }
     }
   }
