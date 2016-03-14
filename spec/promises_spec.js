@@ -61,3 +61,34 @@ describe('stacking callbacks', function(){
     });
   });
 });
+
+describe('chaining callbacks', function(){
+  var promise;
+
+  beforeEach(function(){
+    promise = new Promise(function(resolve){
+      defer(function(){
+        resolve('never gonna');
+      });
+    });
+  });
+
+  context('when calls to `then` are chained', function(){
+    it('pipes the return of one callback into the next', function(done){
+      promise
+      .then(function(result){
+        return result + ' let';
+      })
+      .then(function(result){
+        return result + ' you';
+      })
+      .then(function(result){
+        return result + ' down';
+      })
+      .then(function(result){
+        expect(result).toBe('never gonna let you down');
+        done();
+      });
+    });
+  });
+});

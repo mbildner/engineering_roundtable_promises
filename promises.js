@@ -5,6 +5,7 @@ function Promise (callback){
 
   this.then = function(cb){
     callbackStack.push(cb);
+    return this;
   };
 
   function provider (data){
