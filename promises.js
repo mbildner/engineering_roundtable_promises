@@ -3,7 +3,6 @@
 function Promise (callback){
   var cbStack = [];
   var errBack = function(){};
-
   this.catch = function(errorCb){
     errBack = errorCb;
     return this;
@@ -17,17 +16,13 @@ function Promise (callback){
   function provider (data){
     var i, cb, intermediate = data;
 
-    for (i=0; i<cbStack.length; i++){
-      cb = cbStack[i];
+    while (cb = cbStack.shift()){
       try {
-        if (intermediate instanceof Promise) {
-          cbStack.slice(i).forEach(function(nextCb){
-            intermediate.then(nextCb);
-          });
-          break;
-        }
-        intermediate = cb(intermediate);
-      } catch (error) {
+        intermediate instanceof Promise
+          ? intermediate.then(cb)
+          : intermediate = cb(intermediate);
+      }
+      catch (error) {
         errBack(error);
         break;
       }
@@ -39,6 +34,24 @@ function Promise (callback){
   }
   callback(provider, rejecter);
 }
+Promise.all = function(promises){
+  var waitingToFinish = promises.length;
+  var collectedData = [];
+
+  return new Promise(function(resolve, reject){
+    promises.forEach(function(promise, i){
+      promise.then(function(data){
+        collectedData[i] = data;
+        waitingToFinish--;
+        if (!--waitingToFinish){
+          resolve(collectedData);
+        }
+      });
+
+      promise.catch(reject);
+    });
+  });
+};
 
 
 function deferredFive (){
@@ -79,15 +92,37 @@ function multiplySeven(number){
   return promise;
 }
 
-
-deferredFive()
-  .then(addSix)
-  .then(subtractThree)
-  .then(multiplySeven)
-  .then(function(result){
-    return 'Our final answer is: ' + result;
-  })
-  .then(function(finalAnswer){
-    console.log(finalAnswer);
+function deferredFail (){
+  var promise = new Promise(function(resolve, reject){
+    global.setTimeout(function(){
+      reject("here's your deferred failure!");
+    });
   });
 
+  return promise;
+}
+
+
+deferredFive()
+.then(addSix)
+.then(subtractThree)
+.then(multiplySeven)
+.then(function(result){
+  return 'Our final answer is: ' + result;
+})
+.then(function(finalAnswer){
+  console.log(finalAnswer);
+});
+
+
+Promise.all([
+  deferredFive(),
+  deferredFive(),
+  deferredFive()
+])
+  .then(function(data){
+    console.log(data);
+  })
+  .catch(function(reason){
+    console.log(reason);
+  });
