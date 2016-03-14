@@ -197,12 +197,12 @@ describe('flattening async stuff', function(){
 
     it('passes the resolved value from one promise into the `then` callback of the next', function(done){
       five()
-        .then(addSix)
-        .then(timesSeven)
-        .then(function(finalAnswer){
-          expect(finalAnswer).toBe(77);
-          done();
-        });
+      .then(addSix)
+      .then(timesSeven)
+      .then(function(finalAnswer){
+        expect(finalAnswer).toBe(77);
+        done();
+      });
     });
   });
 });
@@ -212,6 +212,16 @@ describe('.all', function(){
     var promise = new Promise(function(resolve){
       defer(function(){
         resolve(value);
+      });
+    });
+
+    return promise;
+  }
+
+  function failPromise(reason){
+    var promise = new Promise(function(resolve, reject){
+      defer(function(){
+        reject(reason);
       });
     });
 
@@ -232,7 +242,26 @@ describe('.all', function(){
           'friday', 'friday', 'gotta', 'get', 'down'
         ]);
         done();
-      })
+      });
+    });
+  });
+
+  context('when called with an array of non-failing promises', function(){
+    it('returns a promise that will resolve with an array of values', function(done){
+      Promise.all([
+        promiseMe('fuckin'),
+        promiseMe('magnets'),
+        promiseMe('how'),
+        failPromise('you shall not pass'),
+        promiseMe('do'),
+        promiseMe('they'),
+        promiseMe('work'),
+      ])
+      .catch(function(reason){
+        expect(reason)
+        .toBe('you shall not pass');
+        done();
+      });
     });
   });
 });

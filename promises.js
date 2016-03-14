@@ -39,13 +39,15 @@ Promise.all = function(promises){
   var allData = [];
   var whenAllFinished = new Promise(function(resolve, reject){
     promises.forEach(function(promise, index){
-      promise.then(function(data){
-        allData[index] = data;
-        unresolvedPromises--;
-        if (!unresolvedPromises){
-          resolve(allData);
-        }
-      });
+      promise
+        .then(function(data){
+          allData[index] = data;
+          unresolvedPromises--;
+          if (!unresolvedPromises){
+            resolve(allData);
+          }
+        })
+        .catch(reject);
     });
   });
 
