@@ -153,12 +153,56 @@ describe('protecting a promise', function(){
       })
       .catch(function(error){
         expect(error.toString())
-          .toMatch(
-            /Error: Stahp/
-          );
+        .toMatch(
+          /Error: Stahp/
+        );
       });
 
       defer(done);
+    });
+  });
+});
+
+describe('flattening async stuff', function(){
+  context('when multiple promises are passed to each other', function(){
+    function five(){
+      var promise = new Promise(function(resolve){
+        defer(function(){
+          resolve(5);
+        });
+      });
+
+      return promise;
+    }
+
+    function addSix(number){
+      var promise = new Promise(function(resolve){
+        defer(function(){
+          resolve(number + 6);
+        });
+      });
+
+      return promise;
+    }
+
+    function timesSeven(number){
+      var promise = new Promise(function(resolve){
+        defer(function(){
+          resolve(number * 7);
+        });
+      });
+
+      return promise;
+    }
+
+    it('passes the resolved value from one promise into the `then` callback of the next', function(done){
+      five()
+        .then(addSix)
+        .then(timesSeven)
+        .then(function(finalAnswer){
+          expect(finalAnswer).toBe(77);
+          done();
+        });
     });
   });
 });

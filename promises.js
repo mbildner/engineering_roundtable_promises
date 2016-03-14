@@ -17,7 +17,9 @@ function Promise (callback){
     var cb, intermediate = data;
     while (cb = callbackStack.shift()){
       try {
-        intermediate = cb(intermediate);
+        intermediate instanceof Promise
+          ? intermediate.then(cb)
+          : intermediate = cb(intermediate);
       } catch (error) {
         errback(error);
         break;
