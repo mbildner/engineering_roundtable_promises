@@ -28,3 +28,36 @@ describe('a deferred result', function(){
     });
   });
 });
+
+describe('stacking callbacks', function(){
+  var promise;
+
+  beforeEach(function(){
+    promise = new Promise(function(resolve){
+      defer(function(){
+        resolve('never gonna');
+      });
+    });
+  });
+
+  context('when `then` is called multiple times', function(){
+    it('pipes the return of one callback into the next', function(done){
+      promise.then(function(result){
+        return result + ' give';
+      });
+
+      promise.then(function(result){
+        return result + ' you';
+      });
+
+      promise.then(function(result){
+        return result + ' up';
+      });
+
+      promise.then(function(result){
+        expect(result).toBe('never gonna give you up');
+        done();
+      });
+    });
+  });
+});

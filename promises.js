@@ -1,14 +1,17 @@
 'use strict';
 
 function Promise (callback){
-  var thenCallback = function(){};
+  var callbackStack = [];
 
   this.then = function(cb){
-    thenCallback = cb;
+    callbackStack.push(cb);
   };
 
   function provider (data){
-    thenCallback(data);
+    var cb, intermediate = data;
+    while (cb = callbackStack.shift()){
+      intermediate = cb(intermediate);
+    }
   }
 
   callback(provider);
